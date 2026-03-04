@@ -1,0 +1,46 @@
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
+export async function apiRequest(
+  endpoint,
+  method = "GET",
+  body = null,
+  token = null
+) {
+  console.log("=========================================================")
+  console.log("Full URL:", `${baseUrl}${endpoint}`);
+  console.log("=========================================================")
+
+  const headers = {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const options = {
+    method,
+    headers,
+  };
+
+  if (body) {
+    options.body = JSON.stringify(body);
+  }
+
+  const response = await fetch(`${baseUrl}${endpoint}`, options);
+
+  const data = await response.json();
+
+  console.log("=========================================================")
+  console.log("request to: ", `${baseUrl}${endpoint}`);
+  console.log("=========================================================")
+  console.log("response: ", data);
+  console.log("=========================================================")
+
+  if (!response.ok) {
+    throw new Error(data.message || "Something went wrong");
+  }
+
+  return data;
+}
