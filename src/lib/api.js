@@ -6,7 +6,6 @@ export async function apiRequest(
   body = null,
   token = null,
 ) {
-
   const headers = {
     Accept: "application/json",
     "Content-Type": "application/json",
@@ -29,11 +28,11 @@ export async function apiRequest(
 
   const data = await response.json();
 
-  console.log("=========================================================")
+  console.log("=========================================================");
   console.log("request to: ", `${baseUrl}${endpoint}`);
-  console.log("=========================================================")
+  console.log("=========================================================");
   console.log("response: ", data);
-  console.log("=========================================================")
+  console.log("=========================================================");
 
   if (!response.ok) {
     throw new Error(data.message || "Something went wrong");
