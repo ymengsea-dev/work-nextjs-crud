@@ -4,11 +4,8 @@ export async function apiRequest(
   endpoint,
   method = "GET",
   body = null,
-  token = null
+  token = null,
 ) {
-  console.log("=========================================================")
-  console.log("Full URL:", `${baseUrl}${endpoint}`);
-  console.log("=========================================================")
 
   const headers = {
     Accept: "application/json",

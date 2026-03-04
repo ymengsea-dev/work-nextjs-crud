@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { registerService } from "@/service/authService";
 
 export default function SignupPage() {
   const [username, setUsername] = useState("");
@@ -9,9 +10,18 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const router = useRouter();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // handle signup logic
+
+    const res = await registerService({
+      username,
+      email,
+      password,
+    })
+
+    console.log("register res:", JSON.stringify(res, null, 2));
+
+    router.push("/login");
   };
 
   return (

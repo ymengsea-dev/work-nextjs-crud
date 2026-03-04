@@ -1,6 +1,8 @@
 import React from 'react'
 
-function page() {
+async function page() {
+  const res = await getProduct();
+  console.log("res in product page:", res);
   return (
     <div>Hello this is protect route, product</div>
   )
