@@ -71,7 +71,13 @@ export const createProduct = async (payload) => {
     return res;
   } catch (error) {
     console.error("Create product error:", error);
-    return null;
+    return {
+      status: {
+        code: "ERROR",
+        message: error.message || "Failed to create product.",
+      },
+      data: null,
+    };
   }
 };
 
@@ -88,7 +94,13 @@ export const updateProduct = async (id, payload) => {
     return res;
   } catch (error) {
     console.error("Update product error:", error);
-    return null;
+    return {
+      status: {
+        code: "ERROR",
+        message: error.message || "Failed to update product.",
+      },
+      data: null,
+    };
   }
 };
 
@@ -110,7 +122,13 @@ export const updateProductStatus = async (id, status) => {
     return res;
   } catch (error) {
     console.error("Update product status error:", error);
-    return null;
+    return {
+      status: {
+        code: "ERROR",
+        message: error.message || "Failed to update product status.",
+      },
+      data: null,
+    };
   }
 };
 
@@ -127,6 +145,12 @@ export const deleteProduct = async (id) => {
     return res;
   } catch (error) {
     console.error("Delete product error:", error);
-    return null;
+    return {
+      status: {
+        code: "ERROR",
+        message: error.message || "Failed to delete product.",
+      },
+      data: null,
+    };
   }
 };

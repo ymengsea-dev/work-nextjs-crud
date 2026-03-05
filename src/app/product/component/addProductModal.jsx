@@ -43,7 +43,13 @@ export default function AddProductModal() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { code, name, description, price, currency } = form;
-    const res = await createProduct({ code, name, description, price, currency });
+    const res = await createProduct({
+      code,
+      name,
+      description,
+      price,
+      currency,
+    });
 
     if (res?.status.code == "SUCCESS") {
       setForm({

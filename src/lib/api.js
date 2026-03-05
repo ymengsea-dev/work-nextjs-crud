@@ -1,4 +1,4 @@
-'use server'
+"use server";
 import { getServerSession } from "next-auth";
 import authOptions from "@/auth";
 
@@ -38,8 +38,8 @@ export async function apiRequest(
   console.log("response: ", data);
   console.log("=========================================================");
 
-  if (!response.ok) {
-    throw new Error(data.message || "Something went wrong");
+  if (!response.ok || data?.status?.code !== "SUCCESS") {
+    throw new Error(data?.status?.message ?? "Something went wrong");
   }
 
   return data;
@@ -48,5 +48,5 @@ export async function apiRequest(
 export async function getAuthToken() {
   const session = await getServerSession(authOptions);
   const token = session?.accessToken;
-  return token || null
+  return token || null;
 }
