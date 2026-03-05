@@ -7,18 +7,34 @@ export const getProducts = async ({
   size = 20,
   sortBy = "id",
   sortDir = "asc",
+  status,
+  q,
 } = {}) => {
   try {
-    const token = await getAuthToken ()
+    const token = await getAuthToken();
 
     if (!token) {
       throw new Error("No access token found in session");
     }
 
-    const query = `?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`;
+    const params = new URLSearchParams({
+      page: String(page),
+      size: String(size),
+      sortBy,
+      sortDir,
+    });
+
+    if (status) {
+      params.append("status", status);
+    }
+
+    if (q) {
+      params.append("q", q);
+    }
+
+    const query = `?${params.toString()}`;
     const res = await apiRequest(`/products${query}`, "GET", null, token);
     return res?.data.items;
-    
   } catch (error) {
     console.error("Get products error:", error);
     return null;
@@ -72,6 +88,28 @@ export const updateProduct = async (id, payload) => {
     return res;
   } catch (error) {
     console.error("Update product error:", error);
+    return null;
+  }
+};
+
+// patch product status only
+export const updateProductStatus = async (id, status) => {
+  try {
+    const token = await getAuthToken();
+
+    if (!token) {
+      throw new Error("No access token found in session");
+    }
+
+    const res = await apiRequest(
+      `/products/${id}`,
+      "PATCH",
+      { status },
+      token
+    );
+    return res;
+  } catch (error) {
+    console.error("Update product status error:", error);
     return null;
   }
 };
