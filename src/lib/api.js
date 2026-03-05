@@ -1,3 +1,7 @@
+'use server'
+import { getServerSession } from "next-auth";
+import authOptions from "@/auth";
+
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export async function apiRequest(
@@ -39,4 +43,10 @@ export async function apiRequest(
   }
 
   return data;
+}
+
+export async function getAuthToken() {
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
+  return token || null
 }
