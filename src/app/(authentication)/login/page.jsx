@@ -19,6 +19,7 @@ export default function LoginPage() {
     });
 
     if (result?.error) {
+      alert(result.error);
       return;
     }
 

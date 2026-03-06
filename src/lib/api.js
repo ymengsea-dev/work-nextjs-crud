@@ -38,9 +38,10 @@ export async function apiRequest(
   console.log("response: ", data);
   console.log("=========================================================");
 
-  if (!response.ok || data?.status?.code !== "SUCCESS") {
-    throw new Error(data?.status?.message ?? "Something went wrong");
-  }
+  if (!response.ok) {
+  const errorMessage = data?.status?.message ?? `Request failed with status ${response.status}`;
+  throw new Error(errorMessage);
+}
 
   return data;
 }

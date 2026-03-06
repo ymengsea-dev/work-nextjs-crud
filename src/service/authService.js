@@ -26,7 +26,7 @@ export const loginService = async ({ email, password }) => {
         }, null);
         return res
     } catch (error) {
-        console.error("Login service error:", error);
-        return null;
+        console.error("Login service error:", error.message); // log server message
+        throw error;
     };
 };

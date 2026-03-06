@@ -30,7 +30,7 @@ export const authOptions = {
           return null;
 
         } catch (error) {
-          console.error("Authorize error:", error);
+          throw new Error(error.message); 
         }
         return null;
       },
