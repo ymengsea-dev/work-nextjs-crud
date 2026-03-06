@@ -1,7 +1,8 @@
 "use client"
 
 import { useRouter, useSearchParams } from "next/navigation";
-
+import { useDebouncedCallback } from "use-debounce";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import AddProductModal from "./addProductModal";
 import {
@@ -16,7 +17,7 @@ export default function Navbar() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const search = searchParams.get("q") ?? "";
+   const [input, setInput] = useState(searchParams.get("q") ?? "");
   const status = searchParams.get("status") ?? "";
 
   const updateQuery = (updates) => {
@@ -44,8 +45,13 @@ export default function Navbar() {
     router.push(query ? `/product?${query}` : "/product");
   };
 
+  const debouncedSearch = useDebouncedCallback((value) => {
+     updateQuery({ q: value })
+  }, 400)
+
   const handleSearchChange = (value) => {
-    updateQuery({ q: value });
+    setInput(value);
+    debouncedSearch(value);
   };
 
   const handleStatusChange = (value) => {
@@ -67,12 +73,12 @@ export default function Navbar() {
         <Input
           placeholder="Search product by name or ID..."
           className="w-64 h-9 rounded-xl border-none bg-white/90 text-sm shadow-sm focus-visible:ring-2 focus-visible:ring-sky-300"
-          value={search}
+          value={input}
           onChange={(e) => handleSearchChange(e.target.value)}
         />
 
         <Select value={status || "ALL"} onValueChange={handleStatusChange}>
-          <SelectTrigger className="w-[140px] h-9 rounded-xl border-none bg-white/90 text-xs font-medium text-zinc-700 shadow-sm focus:ring-2 focus:ring-emerald-300">
+          <SelectTrigger className="w-35 h-9 rounded-xl border-none bg-white/90 text-xs font-medium text-zinc-700 shadow-sm focus:ring-2 focus:ring-emerald-300">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent className="rounded-xl">
