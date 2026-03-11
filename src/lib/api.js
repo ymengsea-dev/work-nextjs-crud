@@ -22,6 +22,7 @@ export async function apiRequest(
   const options = {
     method,
     headers,
+    cache: "no-store",
   };
 
   if (body) {

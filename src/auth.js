@@ -1,5 +1,6 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import { loginService } from "@/service/authService";
+import { refreshToken } from "@/service/authService";
 
 export const authOptions = {
   providers: [
@@ -15,6 +16,10 @@ export const authOptions = {
             email: credentials.email,
             password: credentials.password,
           });
+          
+          if (res?.status?.code !== "LOGIN_SUCCESS") {
+            throw new Error(res?.status?.message || "Login failed");
+          }
 
           if (res?.data?.accessToken) {
             return {
@@ -22,6 +27,7 @@ export const authOptions = {
               username: res.data.user.userName,
               roles: res.data.user.roles,
               accessToken: res.data.accessToken,
+              refreshToken: res.data.refreshToken,
               tokenType: res.data.tokenType,
               expiresIn: res.data.expiresIn,
             };
@@ -38,15 +44,28 @@ export const authOptions = {
 
   callbacks: {
     async jwt({ token, user }) {
+
+      // First login
       if (user) {
         token.id = user.id;
         token.username = user.username;
         token.roles = user.roles;
         token.accessToken = user.accessToken;
+        token.refreshToken = user.refreshToken;
         token.tokenType = user.tokenType;
-        token.expiresIn = user.expiresIn;
+
+        // store expiration timestamp
+        token.accessTokenExpires = Date.now() + user.expiresIn * 1000;
+
+        return token;
       }
-      return token;
+
+      // If token still valid → return it
+      if (Date.now() < token.accessTokenExpires) {
+        return token;
+      }
+
+      return await refreshToken(token);
     },
     async session({ session, token }) {
       if (session && session.user) {
@@ -54,11 +73,12 @@ export const authOptions = {
         session.user.username = token.username;
         session.user.roles = token.roles;
         session.accessToken = token.accessToken;
+        session.refreshToken = token.refreshToken;
         session.tokenType = token.tokenType;
         session.expiresIn = token.expiresIn;
       }
       return session;
-    },
+    }
   },
 
   pages: {

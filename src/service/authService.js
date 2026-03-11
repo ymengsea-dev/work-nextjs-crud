@@ -30,3 +30,24 @@ export const loginService = async ({ email, password }) => {
         throw error;
     };
 };
+
+export const refreshToken = async (token) => {
+    try {
+        const res = await apiRequest("/user/refresh-token", "POST", {
+            refreshToken: token.refreshToken
+        }, null);
+        
+        if (res?.data?.accessToken) {
+            return {
+                ...token,
+                accessToken: res.data.accessToken,
+                refreshToken: res.data.refreshToken || token.refreshToken,
+                accessTokenExpires: Date.now() + (res.data.expiresIn * 1000)
+            };
+        }
+        
+        return token;
+    } catch (error){
+        throw error;
+    }
+}

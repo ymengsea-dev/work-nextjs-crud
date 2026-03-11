@@ -3,7 +3,7 @@ import ProductCard from "./component/productCard";
 import { getProducts } from "@/service/productService";
 
 async function ProductPage({ searchParams }) {
-  const params = (await searchParams) || {};
+  const params = searchParams || {};
   const q = params.q ?? "";
   const status = params.status ?? "";
 
