@@ -16,27 +16,32 @@ export const authOptions = {
             email: credentials.email,
             password: credentials.password,
           });
-          
+
           if (res?.status?.code !== "LOGIN_SUCCESS") {
             throw new Error(res?.status?.message || "Login failed");
           }
 
-          if (res?.data?.accessToken) {
+          // Handle both camelCase and snake_case from backend
+          const accessToken = res.data?.accessToken || res.data?.access_token;
+          const refreshTokenValue = res.data?.refreshToken || res.data?.refresh_token;
+          const expiresIn = res.data?.expiresIn || res.data?.expires_in;
+
+          if (accessToken) {
             return {
-              id: res.data.user.userId,
-              username: res.data.user.userName,
-              roles: res.data.user.roles,
-              accessToken: res.data.accessToken,
-              refreshToken: res.data.refreshToken,
-              tokenType: res.data.tokenType,
-              expiresIn: res.data.expiresIn,
+              id: res.data.user?.userId || res.data.user?.id,
+              username: res.data.user?.userName || res.data.user?.username,
+              roles: res.data.user?.roles,
+              accessToken,
+              refreshToken: refreshTokenValue,
+              tokenType: res.data?.tokenType || res.data?.token_type,
+              expiresIn: expiresIn || 3600, // Default to 1 hour if not provided
             };
           }
 
           return null;
 
         } catch (error) {
-          throw new Error(error.message); 
+          throw new Error(error.message);
         }
       },
     }),
@@ -44,9 +49,9 @@ export const authOptions = {
 
   callbacks: {
     async jwt({ token, user }) {
-
       // First login
       if (user) {
+        console.log("JWT Callback - Initial Login:", user.username);
         token.id = user.id;
         token.username = user.username;
         token.roles = user.roles;
@@ -57,6 +62,7 @@ export const authOptions = {
         // store expiration timestamp
         token.accessTokenExpires = Date.now() + user.expiresIn * 1000;
 
+        console.log("JWT Callback - Token Expires At:", new Date(token.accessTokenExpires).toLocaleString());
         return token;
       }
 
@@ -65,7 +71,20 @@ export const authOptions = {
         return token;
       }
 
-      return await refreshToken(token);
+      console.log("JWT Callback - Token expired, attempting refresh...");
+      if (!token.refreshToken) {
+        console.error("JWT Callback - No refresh token available!");
+        return { ...token, error: "RefreshTokenError" };
+      }
+
+      try {
+        const refreshedToken = await refreshToken(token);
+        console.log("JWT Callback - Refresh successful");
+        return refreshedToken;
+      } catch (error) {
+        console.error("JWT Callback - Refresh failed:", error.message);
+        return { ...token, error: "RefreshTokenError" };
+      }
     },
     async session({ session, token }) {
       if (session && session.user) {

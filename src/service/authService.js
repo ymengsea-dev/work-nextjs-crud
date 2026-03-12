@@ -33,21 +33,32 @@ export const loginService = async ({ email, password }) => {
 
 export const refreshToken = async (token) => {
     try {
+        if (!token.refreshToken) {
+            throw new Error("No refresh token provided to refreshToken service");
+        }
+
+        console.log("AuthService - refreshing token...");
         const res = await apiRequest("/user/refresh-token", "POST", {
             refreshToken: token.refreshToken
         }, null);
-        
-        if (res?.data?.accessToken) {
+
+        const newAccessToken = res?.data?.accessToken || res?.data?.access_token;
+        const newRefreshToken = res?.data?.refreshToken || res?.data?.refresh_token;
+        const expiresIn = res?.data?.expiresIn || res?.data?.expires_in || 3600;
+
+        if (newAccessToken) {
             return {
                 ...token,
-                accessToken: res.data.accessToken,
-                refreshToken: res.data.refreshToken || token.refreshToken,
-                accessTokenExpires: Date.now() + (res.data.expiresIn * 1000)
+                accessToken: newAccessToken,
+                refreshToken: newRefreshToken || token.refreshToken,
+                accessTokenExpires: Date.now() + (expiresIn * 1000)
             };
         }
-        
+
+        console.warn("AuthService - Refresh failed: No access token in response", res);
         return token;
-    } catch (error){
+    } catch (error) {
+        console.error("AuthService - Refresh error:", error.message);
         throw error;
     }
 }

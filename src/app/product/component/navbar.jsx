@@ -17,18 +17,18 @@ export default function Navbar() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-   const [input, setInput] = useState(searchParams.get("q") ?? "");
+  const [input, setInput] = useState(searchParams.get("query") ?? "");
   const status = searchParams.get("status") ?? "";
 
   const updateQuery = (updates) => {
     const params = new URLSearchParams(searchParams.toString());
 
-    if (Object.prototype.hasOwnProperty.call(updates, "q")) {
-      const value = updates.q ?? "";
+    if (Object.prototype.hasOwnProperty.call(updates, "query")) {
+      const value = updates.query ?? "";
       if (value) {
-        params.set("q", value);
+        params.set("query", value);
       } else {
-        params.delete("q");
+        params.delete("query");
       }
     }
 
@@ -46,7 +46,7 @@ export default function Navbar() {
   };
 
   const debouncedSearch = useDebouncedCallback((value) => {
-     updateQuery({ q: value })
+    updateQuery({ query: value })
   }, 400)
 
   const handleSearchChange = (value) => {

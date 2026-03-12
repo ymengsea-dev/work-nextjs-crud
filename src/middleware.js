@@ -17,5 +17,6 @@ export default async function middleware(req) {
 export const config = {
   matcher: [
     "/product/:path*",
+    "/table/:path*",
   ],
 };

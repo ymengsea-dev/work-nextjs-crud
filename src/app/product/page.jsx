@@ -4,11 +4,11 @@ import { getProducts } from "@/service/productService";
 
 async function ProductPage({ searchParams }) {
   const params = searchParams || {};
-  const q = params.q ?? "";
+  const query = params.query ?? "";
   const status = params.status ?? "";
 
   const res = await getProducts({
-    q,
+    query,
     status,
   });
 

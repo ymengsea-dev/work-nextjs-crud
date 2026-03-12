@@ -8,7 +8,7 @@ export const getProducts = async ({
   sortBy = "id",
   sortDir = "asc",
   status,
-  q,
+  query,
 } = {}) => {
   try {
     const token = await getAuthToken();
@@ -28,12 +28,12 @@ export const getProducts = async ({
       params.append("status", status);
     }
 
-    if (q) {
-      params.append("q", q);
+    if (query) {
+      params.append("query", query);
     }
 
-    const query = `?${params.toString()}`;
-    const res = await apiRequest(`/products${query}`, "GET", null, token);
+    const queryString = `?${params.toString()}`;
+    const res = await apiRequest(`/products${queryString}`, "GET", null, token);
     return res?.data.items;
   } catch (error) {
     console.error("Get products error:", error);
@@ -41,10 +41,45 @@ export const getProducts = async ({
   }
 };
 
+// get products paginated (returns full page object with content + totalPages)
+export const getProductsPaginated = async ({
+  page = 0,
+  size = 20,
+  sortBy = "id",
+  sortDir = "asc",
+  status,
+  query,
+} = {}) => {
+  try {
+    const token = await getAuthToken();
+
+    if (!token) {
+      throw new Error("No access token found in session");
+    }
+
+    const params = new URLSearchParams({
+      page: String(page),
+      size: String(size),
+      sortBy,
+      sortDir,
+    });
+
+    if (status) params.append("status", status);
+    if (query) params.append("query", query);
+
+    const res = await apiRequest(`/products?${params.toString()}`, "GET", null, token);
+    // Return the full data object so callers get { content, totalPages, ... }
+    return res?.data ?? { items: [], totalPages: 0 };
+  } catch (error) {
+    console.error("Get products paginated error:", error);
+    return { items: [], totalPages: 0 };
+  }
+};
+
 // get product by id
 export const getProductById = async (id) => {
   try {
-    const token = await getAuthToken ()
+    const token = await getAuthToken()
 
     if (!token) {
       throw new Error("No access token found in session");
@@ -61,7 +96,7 @@ export const getProductById = async (id) => {
 // post prod
 export const createProduct = async (payload) => {
   try {
-    const token = await getAuthToken ()
+    const token = await getAuthToken()
 
     if (!token) {
       throw new Error("No access token found in session");
@@ -84,7 +119,7 @@ export const createProduct = async (payload) => {
 // update prod
 export const updateProduct = async (id, payload) => {
   try {
-    const token = await getAuthToken ()
+    const token = await getAuthToken()
 
     if (!token) {
       throw new Error("No access token found in session");
@@ -135,7 +170,7 @@ export const updateProductStatus = async (id, status) => {
 // delete prod
 export const deleteProduct = async (id) => {
   try {
-    const token = await getAuthToken ()
+    const token = await getAuthToken()
 
     if (!token) {
       throw new Error("No access token found in session");
